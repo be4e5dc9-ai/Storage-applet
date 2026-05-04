@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="card">
+    <view class="section-title">TabBar图标生成器</view>
+    <text class="desc">点击下方按钮生成所需的tabBar图标文件</text>
+    
+    <canvas canvas-id="iconCanvas" class="icon-canvas"></canvas>
+    
+    <button class="btn-primary" bindtap="generateIcons">生成图标</button>
+    <button class="btn-outline mt-20" bindtap="saveAllIcons">保存所有图标</button>
+  </view>
+
+  <view class="card" wx:if="{{generated}}">
+    <view class="section-title">生成状态</view>
+    <view class="status-list">
+      <view class="status-item" wx:for="{{iconList}}" wx:key="name">
+        <text class="status-icon {{item.saved ? 'status-success' : 'status-pending'}}">
+          {{item.saved ? '✓' : '○'}}
+        </text>
+        <text class="status-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">使用说明</view>
+    <view class="help-list">
+      <text class="help-text">1. 点击"生成图标"按钮</text>
+      <text class="help-text">2. 图标将自动保存到本地</text>
+      <text class="help-text">3. 在微信开发者工具中刷新项目</text>
+      <text class="help-text">4. 图标文件位于 images/ 目录下</text>
+    </view>
+  </view>
+</view>

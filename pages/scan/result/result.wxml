@@ -1,0 +1,117 @@
+<view class="container">
+  <!-- 扫码结果 -->
+  <view class="card result-card">
+    <view class="result-header">
+      <view class="result-icon {{goods ? 'icon-success' : 'icon-warning'}}">
+        <text>{{goods ? '✓' : '?'}}</text>
+      </view>
+      <view class="result-info">
+        <text class="result-title">{{goods ? '已识别货物' : '未找到货物'}}</text>
+        <text class="result-barcode">条码: {{barcode}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 货物信息 -->
+  <view class="card" wx:if="{{goods}}">
+    <view class="section-title">货物信息</view>
+    <view class="goods-info">
+      <view class="info-row">
+        <text class="info-label">名称</text>
+        <text class="info-value">{{goods.name}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">分类</text>
+        <text class="info-value">{{goods.categoryName || '未分类'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">当前库存</text>
+        <text class="info-value {{goods.stock <= goods.minStock ? 'text-danger' : 'text-success'}}">
+          {{goods.stock}} {{goods.unit || '件'}}
+        </text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">单价</text>
+        <text class="info-value">¥{{goods.price || '0.00'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 入库表单 -->
+  <view class="card" wx:if="{{goods}}">
+    <view class="section-title">入库操作</view>
+    <view class="form-group">
+      <text class="form-label">入库数量 *</text>
+      <view class="quantity-control">
+        <button class="btn-qty" bindtap="adjustQty" data-amount="{{-1}}">-</button>
+        <input class="form-input qty-input" 
+               type="number" 
+               value="{{quantity}}" 
+               bindinput="onQtyInput"
+               placeholder="请输入数量" />
+        <button class="btn-qty" bindtap="adjustQty" data-amount="{{1}}">+</button>
+      </view>
+      <view class="quick-qty">
+        <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{1}}">+1</text>
+        <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{5}}">+5</text>
+        <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{10}}">+10</text>
+        <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{50}}">+50</text>
+        <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{100}}">+100</text>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <input class="form-input" placeholder="可选填入库备注" value="{{remark}}" bindinput="onRemarkInput" />
+    </view>
+
+    <!-- 入库预览 -->
+    <view class="stock-preview" wx:if="{{quantity > 0}}">
+      <view class="preview-row">
+        <text class="preview-label">当前库存</text>
+        <text class="preview-value">{{goods.stock}}</text>
+      </view>
+      <view class="preview-operator">
+        <text class="text-success">+ {{quantity}}</text>
+      </view>
+      <view class="preview-row">
+        <text class="preview-label">入库后库存</text>
+        <text class="preview-value text-success font-bold">{{newStock}}</text>
+      </view>
+    </view>
+
+    <button class="btn-primary submit-btn" 
+            bindtap="onSubmit" 
+            loading="{{submitting}}"
+            disabled="{{!quantity || quantity <= 0}}">
+      确认入库
+    </button>
+  </view>
+
+  <!-- 未找到货物时的操作 -->
+  <view class="card" wx:if="{{!goods}}">
+    <view class="section-title">操作选项</view>
+    <view class="action-options">
+      <button class="btn-outline action-option-btn" bindtap="createNewGoods">
+        ➕ 新增货物
+      </button>
+      <button class="btn-outline action-option-btn" bindtap="goBack">
+        🔄 重新扫码
+      </button>
+    </view>
+  </view>
+
+  <!-- 最近入库记录 -->
+  <view class="card" wx:if="{{recentRecords.length > 0}}">
+    <view class="section-title">本次入库记录</view>
+    <view class="record-list">
+      <view class="record-item" wx:for="{{recentRecords}}" wx:key="id">
+        <view class="record-icon">✓</view>
+        <view class="record-info">
+          <text class="record-quantity">入库 {{item.quantity}} {{goods.unit || '件'}}</text>
+          <text class="record-time">{{item.timeStr}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

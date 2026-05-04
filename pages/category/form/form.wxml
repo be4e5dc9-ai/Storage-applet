@@ -1,0 +1,53 @@
+<view class="container">
+  <view class="card">
+    <view class="section-title">{{isEdit ? '编辑分类' : '新增分类'}}</view>
+
+    <!-- 分类名称 -->
+    <view class="form-group">
+      <text class="form-label">分类名称 *</text>
+      <input class="form-input" placeholder="请输入分类名称" value="{{form.name}}" bindinput="onInput" data-field="name" />
+      <text class="form-error" wx:if="{{errors.name}}">{{errors.name}}</text>
+    </view>
+
+    <!-- 分类图标 -->
+    <view class="form-group">
+      <text class="form-label">分类图标</text>
+      <view class="icon-selector">
+        <view class="selected-icon" bindtap="showIconPicker">
+          <text class="icon-display">{{form.icon || '📦'}}</text>
+          <text class="icon-hint">点击选择</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 图标选择器 -->
+    <view class="icon-picker" wx:if="{{showIcons}}">
+      <view class="icon-grid">
+        <view class="icon-item {{form.icon === item ? 'icon-active' : ''}}" 
+              wx:for="{{iconList}}" wx:key="*this"
+              bindtap="selectIcon" data-icon="{{item}}">
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 排序 -->
+    <view class="form-group">
+      <text class="form-label">排序</text>
+      <input class="form-input" type="number" placeholder="数字越小越靠前" value="{{form.sort}}" bindinput="onInput" data-field="sort" />
+    </view>
+
+    <!-- 描述 -->
+    <view class="form-group">
+      <text class="form-label">分类描述</text>
+      <textarea class="form-textarea" placeholder="可选填分类描述" value="{{form.description}}" bindinput="onInput" data-field="description" maxlength="200" />
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-bar">
+    <button class="btn-primary submit-btn" bindtap="onSubmit" loading="{{submitting}}">
+      {{isEdit ? '保存修改' : '确认添加'}}
+    </button>
+  </view>
+</view>

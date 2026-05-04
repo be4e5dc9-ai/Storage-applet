@@ -1,0 +1,184 @@
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:if="{{!loading && goods}}">
+    <!-- 货物基本信息 -->
+    <view class="card">
+      <view class="goods-header">
+        <view class="goods-title-row">
+          <text class="goods-name">{{goods.name}}</text>
+          <view class="status-badge {{goods.status === 'active' ? 'badge-active' : 'badge-inactive'}}">
+            {{goods.status === 'active' ? '在售' : '停用'}}
+          </view>
+        </view>
+        <text class="goods-category">{{goods.categoryName || '未分类'}}</text>
+      </view>
+
+      <view class="stock-display">
+        <view class="stock-main">
+          <text class="stock-num {{goods.stock <= goods.minStock ? 'text-danger' : 'text-success'}}">
+            {{goods.stock}}
+          </text>
+          <text class="stock-unit">{{goods.unit || '件'}}</text>
+        </view>
+        <text class="stock-label">当前库存</text>
+        <text class="stock-warning" wx:if="{{goods.stock <= goods.minStock}}">
+          ⚠️ 低于预警值 {{goods.minStock}}
+        </text>
+      </view>
+    </view>
+
+    <!-- 详细信息 -->
+    <view class="card">
+      <view class="section-title">详细信息</view>
+      <view class="detail-list">
+        <view class="detail-item">
+          <text class="detail-label">条形码</text>
+          <text class="detail-value">{{goods.barcode || '-'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">单价</text>
+          <text class="detail-value">¥{{goods.price || '0.00'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">规格型号</text>
+          <text class="detail-value">{{goods.spec || '-'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">计量单位</text>
+          <text class="detail-value">{{goods.unit || '件'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">最低预警</text>
+          <text class="detail-value">{{goods.minStock || 5}} {{goods.unit || '件'}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{goods.description}}">
+          <text class="detail-label">描述</text>
+          <text class="detail-value desc-value">{{goods.description}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作信息 -->
+    <view class="card">
+      <view class="section-title">操作信息</view>
+      <view class="detail-list">
+        <view class="detail-item">
+          <text class="detail-label">创建时间</text>
+          <text class="detail-value">{{createTimeStr}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">更新时间</text>
+          <text class="detail-value">{{updateTimeStr}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 库存操作 -->
+    <view class="card">
+      <view class="section-title">库存操作</view>
+      <view class="stock-actions">
+        <view class="action-card action-in" bindtap="showStockModal" data-type="in">
+          <text class="action-icon">📥</text>
+          <text class="action-title">入库</text>
+          <text class="action-desc">增加库存</text>
+        </view>
+        <view class="action-card action-out" bindtap="showStockModal" data-type="out">
+          <text class="action-icon">📤</text>
+          <text class="action-title">出库</text>
+          <text class="action-desc">减少库存</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近操作记录 -->
+    <view class="card" wx:if="{{recentRecords.length > 0}}">
+      <view class="flex-between mb-20">
+        <text class="section-title" style="margin-bottom:0">最近操作</text>
+        <text class="text-primary text-sm" bindtap="goToAllRecords">查看全部</text>
+      </view>
+      <view class="record-list">
+        <view class="record-item" wx:for="{{recentRecords}}" wx:key="id">
+          <view class="record-type-badge {{item.type === 'in' ? 'type-in' : 'type-out'}}">
+            {{item.type === 'in' ? '入' : '出'}}
+          </view>
+          <view class="record-info">
+            <text class="record-quantity">
+              {{item.type === 'in' ? '+' : '-'}}{{item.quantity}} {{goods.unit || '件'}}
+            </text>
+            <text class="record-time">{{item.timeStr}}</text>
+          </view>
+          <view class="record-stock">
+            库存: {{item.afterStock}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部操作栏 -->
+    <view class="bottom-bar">
+      <button class="btn-outline bottom-btn" bindtap="onEdit">编辑</button>
+      <button class="btn-danger bottom-btn" bindtap="onDelete">删除</button>
+    </view>
+  </block>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && !goods}}">
+    <text class="empty-icon">😕</text>
+    <text class="empty-text">货物不存在</text>
+    <text class="empty-sub">该货物可能已被删除</text>
+    <button class="btn-primary" bindtap="goBack">返回</button>
+  </view>
+
+  <!-- 库存操作弹窗 -->
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="hideModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">{{modalType === 'in' ? '入库操作' : '出库操作'}}</text>
+        <text class="modal-close" bindtap="hideModal">✕</text>
+      </view>
+      <view class="modal-body">
+        <view class="modal-info">
+          <text class="modal-goods-name">{{goods.name}}</text>
+          <text class="modal-current-stock">当前库存: {{goods.stock}} {{goods.unit || '件'}}</text>
+        </view>
+        <view class="form-group">
+          <text class="form-label">{{modalType === 'in' ? '入库' : '出库'}}数量 *</text>
+          <view class="quantity-row">
+            <button class="btn-qty" bindtap="adjustQty" data-amount="{{-1}}">-</button>
+            <input class="form-input qty-input" type="number" value="{{modalQuantity}}" bindinput="onQtyInput" placeholder="请输入数量" />
+            <button class="btn-qty" bindtap="adjustQty" data-amount="{{1}}">+</button>
+          </view>
+          <view class="quick-qty">
+            <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{1}}">+1</text>
+            <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{5}}">+5</text>
+            <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{10}}">+10</text>
+            <text class="quick-qty-item" bindtap="setQuickQty" data-qty="{{50}}">+50</text>
+          </view>
+        </view>
+        <view class="form-group">
+          <text class="form-label">备注</text>
+          <input class="form-input" placeholder="可选填备注信息" value="{{modalRemark}}" bindinput="onRemarkInput" />
+        </view>
+        <view class="modal-preview" wx:if="{{modalQuantity > 0}}">
+          <text class="preview-label">操作后库存:</text>
+          <text class="preview-value {{previewStock < 0 ? 'text-danger' : ''}}">
+            {{previewStock}} {{goods.unit || '件'}}
+          </text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-outline modal-btn" bindtap="hideModal">取消</button>
+        <button class="btn-primary modal-btn {{modalType === 'in' ? '' : 'btn-warning'}}" 
+                bindtap="confirmStockOp" 
+                loading="{{modalSubmitting}}"
+                disabled="{{!modalQuantity || modalQuantity <= 0}}">
+          确认{{modalType === 'in' ? '入库' : '出库'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,95 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-icon">🔍</text>
+    <input class="search-input" placeholder="搜索货物名称/条码" value="{{keyword}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="doSearch" />
+    <text wx:if="{{keyword}}" class="search-clear" bindtap="clearSearch">✕</text>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <scroll-view scroll-x class="filter-scroll">
+      <view class="filter-item {{currentCategory === '' ? 'filter-active' : ''}}" bindtap="filterByCategory" data-id="">全部</view>
+      <view class="filter-item {{currentCategory === item.id ? 'filter-active' : ''}}"
+            wx:for="{{categories}}" wx:key="id"
+            bindtap="filterByCategory" data-id="{{item.id}}">
+        {{item.icon}} {{item.name}}
+      </view>
+    </scroll-view>
+    <view class="filter-status">
+      <picker bindchange="onStatusChange" value="{{statusIndex}}" range="{{statusOptions}}" range-key="label">
+        <view class="status-picker">
+          {{statusOptions[statusIndex].label}} ▾
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 货物列表 -->
+  <view class="goods-list" wx:if="{{goodsList.length > 0}}">
+    <view class="goods-item card" wx:for="{{goodsList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="goods-header">
+        <view class="goods-name-row">
+          <text class="goods-name">{{item.name}}</text>
+          <text class="tag {{item.stock <= item.minStock ? 'tag-red' : 'tag-green'}}">
+            {{item.stock <= item.minStock ? '库存不足' : '正常'}}
+          </text>
+        </view>
+        <text class="goods-category">{{item.categoryName || '未分类'}}</text>
+      </view>
+      <view class="goods-body">
+        <view class="goods-info-row">
+          <view class="info-item">
+            <text class="info-label">条码</text>
+            <text class="info-value">{{item.barcode || '-'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">价格</text>
+            <text class="info-value">¥{{item.price || '0.00'}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">库存</text>
+            <text class="info-value {{item.stock <= item.minStock ? 'text-danger' : 'text-success'}}">
+              {{item.stock}}
+            </text>
+          </view>
+        </view>
+      </view>
+      <view class="goods-footer">
+        <text class="goods-time">更新于 {{item.updateTimeStr}}</text>
+        <view class="goods-actions" catchtap="preventBubble">
+          <text class="action-btn" catchtap="onEdit" data-id="{{item.id}}">编辑</text>
+          <text class="action-btn action-btn-danger" catchtap="onDelete" data-id="{{item.id}}" data-name="{{item.name}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && goodsList.length === 0}}">
+    <text class="empty-icon">📦</text>
+    <text class="empty-text">暂无货物</text>
+    <text class="empty-sub">{{keyword ? '未找到匹配的货物' : '点击下方按钮添加货物'}}</text>
+    <button class="btn-primary" bindtap="goToAdd" wx:if="{{!keyword}}">添加货物</button>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && goodsList.length > 0}}" bindtap="loadMore">
+    <text class="text-gray text-sm">加载更多</text>
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="load-more" wx:if="{{!hasMore && goodsList.length > 0}}">
+    <text class="text-gray text-sm">没有更多了</text>
+  </view>
+
+  <!-- 悬浮添加按钮 -->
+  <view class="fab" bindtap="goToAdd">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

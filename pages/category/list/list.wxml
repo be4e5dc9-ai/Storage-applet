@@ -1,0 +1,36 @@
+<view class="container">
+  <!-- 分类列表 -->
+  <view class="category-list" wx:if="{{categories.length > 0}}">
+    <view class="category-item card" wx:for="{{categories}}" wx:key="id">
+      <view class="category-main" bindtap="goToEdit" data-id="{{item.id}}">
+        <view class="category-icon">{{item.icon || '📦'}}</view>
+        <view class="category-info">
+          <text class="category-name">{{item.name}}</text>
+          <text class="category-count">{{item.goodsCount || 0}} 个货物</text>
+        </view>
+        <text class="category-arrow">›</text>
+      </view>
+      <view class="category-actions">
+        <text class="action-btn" bindtap="onEdit" data-id="{{item.id}}">编辑</text>
+        <text class="action-btn action-btn-danger" bindtap="onDelete" data-id="{{item.id}}" data-name="{{item.name}}">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && categories.length === 0}}">
+    <text class="empty-icon">📂</text>
+    <text class="empty-text">暂无分类</text>
+    <text class="empty-sub">点击下方按钮添加货物分类</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="add-bar">
+    <button class="btn-primary add-btn" bindtap="goToAdd">+ 添加分类</button>
+  </view>
+</view>

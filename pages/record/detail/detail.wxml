@@ -1,0 +1,99 @@
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:if="{{!loading && record}}">
+    <!-- 记录类型标识 -->
+    <view class="type-header {{record.type === 'in' ? 'header-in' : 'header-out'}}">
+      <view class="type-icon">
+        <text>{{record.type === 'in' ? '📥' : '📤'}}</text>
+      </view>
+      <text class="type-title">{{record.type === 'in' ? '入库记录' : '出库记录'}}</text>
+      <text class="type-time">{{timeStr}}</text>
+    </view>
+
+    <!-- 数量信息 -->
+    <view class="card quantity-card">
+      <view class="quantity-display">
+        <text class="quantity-label">操作数量</text>
+        <text class="quantity-num {{record.type === 'in' ? 'text-success' : 'text-danger'}}">
+          {{record.type === 'in' ? '+' : '-'}}{{record.quantity}}
+        </text>
+      </view>
+      <view class="stock-change">
+        <view class="stock-item">
+          <text class="stock-label">操作前库存</text>
+          <text class="stock-value">{{record.beforeStock}}</text>
+        </view>
+        <view class="stock-arrow">→</view>
+        <view class="stock-item">
+          <text class="stock-label">操作后库存</text>
+          <text class="stock-value {{record.type === 'in' ? 'text-success' : 'text-danger'}}">
+            {{record.afterStock}}
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 货物信息 -->
+    <view class="card">
+      <view class="section-title">货物信息</view>
+      <view class="detail-list">
+        <view class="detail-item" bindtap="goToGoods">
+          <text class="detail-label">货物名称</text>
+          <view class="detail-link">
+            <text class="link-text">{{record.goodsName}}</text>
+            <text class="link-arrow">›</text>
+          </view>
+        </view>
+        <view class="detail-item" wx:if="{{record.barcode}}">
+          <text class="detail-label">条形码</text>
+          <text class="detail-value">{{record.barcode}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作信息 -->
+    <view class="card">
+      <view class="section-title">操作信息</view>
+      <view class="detail-list">
+        <view class="detail-item">
+          <text class="detail-label">操作时间</text>
+          <text class="detail-value">{{timeStr}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">操作人员</text>
+          <text class="detail-value">{{record.operator || '未知'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">记录ID</text>
+          <text class="detail-value record-id">{{record.id}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="card" wx:if="{{record.remark}}">
+      <view class="section-title">备注信息</view>
+      <view class="remark-content">
+        <text>{{record.remark}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-bar">
+      <button class="btn-outline action-btn" bindtap="goToGoods">查看货物</button>
+      <button class="btn-outline action-btn" bindtap="goToRecords">所有记录</button>
+    </view>
+  </block>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && !record}}">
+    <text class="empty-icon">😕</text>
+    <text class="empty-text">记录不存在</text>
+    <text class="empty-sub">该记录可能已被删除</text>
+    <button class="btn-primary" bindtap="goBack">返回</button>
+  </view>
+</view>

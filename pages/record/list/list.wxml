@@ -1,0 +1,92 @@
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-tabs">
+      <view class="filter-tab {{currentType === '' ? 'tab-active' : ''}}" bindtap="filterByType" data-type="">全部</view>
+      <view class="filter-tab {{currentType === 'in' ? 'tab-active' : ''}}" bindtap="filterByType" data-type="in">入库</view>
+      <view class="filter-tab {{currentType === 'out' ? 'tab-active' : ''}}" bindtap="filterByType" data-type="out">出库</view>
+    </view>
+    <view class="filter-date">
+      <picker mode="date" bindchange="onDateChange" value="{{selectedDate}}">
+        <view class="date-picker">
+          📅 {{selectedDate || '选择日期'}}
+        </view>
+      </picker>
+      <text wx:if="{{selectedDate}}" class="date-clear" bindtap="clearDate">✕</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-card card">
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-num text-success">+{{stats.inCount}}</text>
+        <text class="stat-label">入库</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num text-danger">-{{stats.outCount}}</text>
+        <text class="stat-label">出库</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{stats.totalCount}}</text>
+        <text class="stat-label">总记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="record-list" wx:if="{{records.length > 0}}">
+    <view class="record-item card" wx:for="{{records}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="record-header">
+        <view class="record-type {{item.type === 'in' ? 'type-in' : 'type-out'}}">
+          {{item.type === 'in' ? '入库' : '出库'}}
+        </view>
+        <text class="record-time">{{item.timeStr}}</text>
+      </view>
+      <view class="record-body">
+        <view class="record-goods">
+          <text class="goods-name">{{item.goodsName}}</text>
+          <text class="goods-barcode" wx:if="{{item.barcode}}">{{item.barcode}}</text>
+        </view>
+        <view class="record-quantity">
+          <text class="{{item.type === 'in' ? 'text-success' : 'text-danger'}}">
+            {{item.type === 'in' ? '+' : '-'}}{{item.quantity}}
+          </text>
+        </view>
+      </view>
+      <view class="record-footer">
+        <view class="stock-change">
+          <text class="stock-before">库存: {{item.beforeStock}}</text>
+          <text class="stock-arrow">→</text>
+          <text class="stock-after">{{item.afterStock}}</text>
+        </view>
+        <text class="record-operator">{{item.operator}}</text>
+      </view>
+      <view class="record-remark" wx:if="{{item.remark}}">
+        <text class="remark-label">备注:</text>
+        <text class="remark-text">{{item.remark}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && records.length === 0}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">暂无记录</text>
+    <text class="empty-sub">{{selectedDate ? '该日期无操作记录' : '还没有入库/出库操作'}}</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && records.length > 0}}" bindtap="loadMore">
+    <text class="text-gray text-sm">加载更多</text>
+  </view>
+
+  <view class="load-more" wx:if="{{!hasMore && records.length > 0}}">
+    <text class="text-gray text-sm">没有更多了</text>
+  </view>
+</view>

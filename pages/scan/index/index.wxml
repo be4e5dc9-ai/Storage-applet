@@ -1,0 +1,86 @@
+<view class="container">
+  <!-- 扫码区域 -->
+  <view class="scan-area card">
+    <view class="scan-icon-wrapper" bindtap="startScan">
+      <view class="scan-icon">
+        <text class="icon-scan">📷</text>
+      </view>
+      <view class="scan-line"></view>
+    </view>
+    <text class="scan-title">点击扫码入库</text>
+    <text class="scan-desc">支持条形码和二维码</text>
+  </view>
+
+  <!-- 手动输入 -->
+  <view class="card">
+    <view class="section-title">手动输入条码</view>
+    <view class="manual-input">
+      <input class="form-input barcode-input" 
+             placeholder="请输入条形码或二维码内容" 
+             value="{{barcode}}" 
+             bindinput="onBarcodeInput"
+             confirm-type="search"
+             bindconfirm="onManualSubmit" />
+      <button class="btn-primary search-btn" bindtap="onManualSubmit">查询</button>
+    </view>
+  </view>
+
+  <!-- 最近扫码记录 -->
+  <view class="card" wx:if="{{recentScans.length > 0}}">
+    <view class="flex-between mb-20">
+      <text class="section-title" style="margin-bottom:0">最近扫码</text>
+      <text class="text-primary text-sm" bindtap="clearRecent">清空</text>
+    </view>
+    <view class="recent-list">
+      <view class="recent-item" wx:for="{{recentScans}}" wx:key="barcode" bindtap="onRecentTap" data-barcode="{{item.barcode}}">
+        <view class="recent-info">
+          <text class="recent-barcode">{{item.barcode}}</text>
+          <text class="recent-name">{{item.goodsName || '未关联货物'}}</text>
+        </view>
+        <text class="recent-time">{{item.timeStr}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫码历史统计 -->
+  <view class="card" wx:if="{{scanStats.total > 0}}">
+    <view class="section-title">今日扫码统计</view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">{{scanStats.total}}</text>
+        <text class="stat-label">总扫码</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num text-success">{{scanStats.matched}}</text>
+        <text class="stat-label">已匹配</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num text-warning">{{scanStats.unmatched}}</text>
+        <text class="stat-label">未匹配</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="card">
+    <view class="section-title">使用说明</view>
+    <view class="help-list">
+      <view class="help-item">
+        <text class="help-num">1</text>
+        <text class="help-text">点击上方扫码区域或使用微信扫一扫功能</text>
+      </view>
+      <view class="help-item">
+        <text class="help-num">2</text>
+        <text class="help-text">扫描商品条形码或二维码</text>
+      </view>
+      <view class="help-item">
+        <text class="help-num">3</text>
+        <text class="help-text">系统自动识别并跳转入库页面</text>
+      </view>
+      <view class="help-item">
+        <text class="help-num">4</text>
+        <text class="help-text">输入入库数量并确认完成入库</text>
+      </view>
+    </view>
+  </view>
+</view>
